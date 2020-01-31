@@ -5,8 +5,8 @@ import {FlatFormComponent} from './components/flat-form/flat-form.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UtilityService} from './services/utility.service';
 import {BrowserModule} from '@angular/platform-browser';
-import {NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
 import {DirectionComponent} from './components/direction/direction.component';
+import {NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [

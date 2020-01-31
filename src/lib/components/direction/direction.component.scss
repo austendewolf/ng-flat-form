@@ -1,5 +1,7 @@
+@import './projects/ng-flat-form/src/lib/assets/scss/base';
+
 .direction-break {
-  border-top: 2px solid #bec1c3;
+  border-top: 2px solid $app-secondary-color;
   width: 100px;
   margin-top: 7px;
   margin-bottom: 15px;

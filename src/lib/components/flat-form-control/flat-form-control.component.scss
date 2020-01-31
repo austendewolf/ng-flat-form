@@ -1,9 +1,4 @@
-@import '../../../../../../src/assets/scss/base/base';
-
-//  Variables
-$border: 1px solid #ddd;
-$padding: 10px;
-$label-font-size: 13px;
+@import './projects/ng-flat-form/src/lib/assets/scss/base';
 
 .control-container {
   display: flex;
@@ -11,22 +6,22 @@ $label-font-size: 13px;
   position: relative;
   width: 100%;
   height: 60px;
-  background-color: #fff;
+  background-color: $app-primary-color;
 
   &.auto-height {
     height: auto;
   }
 
   &.border-right {
-    border-right: 1px solid #c3c3c3;
+    border-right: 1px solid $app-quaternary-color;
   }
 
   &.border-top {
-    border-top: 1px solid #c3c3c3;
+    border-top: 1px solid $app-quaternary-color;
   }
 
   &.border-bottom {
-    border-bottom: 1px solid #c3c3c3;
+    border-bottom: 1px solid $app-quaternary-color;
   }
 
   &.quarter {
@@ -120,7 +115,7 @@ $label-font-size: 13px;
     }
 
     &:focus + label {
-      color: #2c8efe;
+      color: $app-info-color;
     }
 
     & + label {
@@ -134,7 +129,7 @@ $label-font-size: 13px;
       left: 7px;
 
       span {
-        color: #afafaf;
+        color: $app-senary-color;
       }
 
       i {
@@ -146,7 +141,7 @@ $label-font-size: 13px;
 
   select:not(.custom-select) {
     font-size: .9em;
-    color: #c8d2d9;
+    color: $app-senary-color;
     text-align-last: auto;
 
     &:hover {
@@ -176,7 +171,7 @@ $label-font-size: 13px;
   select:-webkit-autofill,
   select:-webkit-autofill:hover,
   select:-webkit-autofill:focus {
-    background-color: #fff !important;
+    background-color: $app-primary-color !important;
     transition: background-color 5000s ease-in-out 0s;
   }
 }

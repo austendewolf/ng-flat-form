@@ -1,0 +1,35 @@
+//
+//  sizing
+$zero:  0px;
+$xs:    5px;
+$sml:   10px;
+$med:   20px;
+$lrg:   30px;
+$xlrg:  45px;
+$xxlrg: 60px;
+$xxxlrg: 70px;
+$xxxxlrg: 100px;
+
+//
+//  colors
+//  Application Theme colors
+$app-primary-color: #fff;
+$app-secondary-color: #bec1c3;
+$app-tertiary-color: #ddd;
+$app-quaternary-color: #c3c3c3;
+$app-quinary-color: #efefef;
+$app-senary-color: #afafaf;
+//$app-septenary-color:#525f7f;
+//$app-octonary-color: #32325d;
+//$app-nonary-color: #2d649e;
+//$app-denary-color: #383e40;
+$app-info-color: #0393ff;
+$app-success-color: #63c326;
+$app-danger-color: #d9534f;
+$app-warning-color: #ffc107;
+
+//
+//  variables
+$border: 1px solid $app-tertiary-color;
+$padding: 10px;
+$label-font-size: 13px;

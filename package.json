@@ -1,6 +1,6 @@
 {
   "name": "ng-flat-form",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JSON driven dynamic, and reactive forms for Angular applications",
   "author": "Austen DeWolf",
   "repository": {
@@ -10,6 +10,7 @@
   "peerDependencies": {
     "@angular/common": "^8.2.9",
     "@angular/core": "^8.2.9",
-    "moment": "^2.24.0"
+    "moment": "^2.24.0",
+    "@ng-bootstrap/ng-bootstrap": "^5.2.1"
   }
 }
