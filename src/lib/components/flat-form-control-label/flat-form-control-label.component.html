@@ -1,0 +1,11 @@
+<label
+  [attr.for]="controlContainer.control.key"
+  class="input-label">
+  {{controlContainer.control.placeholder}}
+  <span *ngIf="controlContainer.control.showLength && controlContainer.control.maxLength">({{(controlContainer.value || []).length + ' of ' + controlContainer.control.maxLength}})</span>
+  <span *ngIf="controlContainer.control.showValidation">
+      <i [hidden]="controlContainer.getControlState(controlContainer.control) !== 'pristine'" class="fa fa-circle-thin text-muted"></i>
+      <i [hidden]="controlContainer.getControlState(controlContainer.control) !== 'valid'" class="fa fa-check-circle text-success"></i>
+      <i [hidden]="controlContainer.getControlState(controlContainer.control) !== 'invalid'" class="fa fa-exclamation-circle text-danger"></i>
+    </span>
+</label>

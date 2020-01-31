@@ -1,0 +1,123 @@
+<div [formGroup]="form" [hidden]="control.hidden" class="control-container {{control.class}}">
+  <input
+    *ngIf="control.type === FlatFormControlType.INPUT_TEXT"
+    [id]="control.key"
+    [name]="control.key"
+    [type]="'text'"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    [maxlength]="control.maxLength"
+    [minlength]="control.minLength"
+    [max]="control.max"
+    [min]="control.min"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input">
+
+  <input
+    *ngIf="control.type === FlatFormControlType.INPUT_NUMBER"
+    [id]="control.key"
+    [name]="control.key"
+    [type]="'number'"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    [maxlength]="control.maxLength"
+    [minlength]="control.minLength"
+    [max]="control.max"
+    [min]="control.min"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input">
+
+  <input
+    *ngIf="control.type === FlatFormControlType.INPUT_PASSWORD"
+    [id]="control.key"
+    [name]="control.key"
+    [type]="'password'"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    [maxlength]="control.maxLength"
+    [minlength]="control.minLength"
+    [max]="control.max"
+    [min]="control.min"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input">
+
+  <input
+    *ngIf="control.type === FlatFormControlType.INPUT_EMAIL"
+    [id]="control.key"
+    [name]="control.key"
+    [type]="'email'"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    [maxlength]="control.maxLength"
+    [minlength]="control.minLength"
+    [max]="control.max"
+    [min]="control.min"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input">
+
+  <input
+    *ngIf="control.type === FlatFormControlType.INPUT_DATE"
+    class="app-control-input"
+    autocomplete="off"
+    [type]="'text'"
+    [id]="control.key"
+    [name]="control.key"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    (change)="onChange($event, control, controls)"
+    (click)="toggleDatepicker()"
+    #datePicker="ngbDatepicker"
+    ngbDatepicker>
+
+<!--  [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }"-->
+
+  <textarea
+    *ngIf="control.type === FlatFormControlType.TEXTAREA"
+    [style.height]="control.rows + 'em'"
+    [id]="control.key"
+    [name]="control.key"
+    [formControlName]="control.key"
+    [placeholder]="control.placeholder"
+    [required]="control.required"
+    [maxlength]="control.maxLength"
+    [minlength]="control.minLength"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input">
+  </textarea>
+
+  <select
+    *ngIf="control.type === FlatFormControlType.SELECT"
+    [id]="control.key"
+    [name]="control.key"
+    [formControlName]="control.key"
+    [required]="control.required"
+    (ngModelChange)="onChange($event, control, controls)"
+    class="app-control-input"
+    [ngClass]="{'loading': loading || control.loading}">
+    <option [disabled]="control.required" value="">{{control.placeholder}}</option>
+    <option *ngFor="let option of control.selectOptions" [value]="option.key">{{option.value}}</option>
+  </select>
+
+  <label
+    [attr.for]="control.key"
+    class="input-label">
+    {{control.placeholder}}
+    <span *ngIf="control.showLength && control.maxLength">({{(value || []).length + ' of ' + control.maxLength}})</span>
+    <span *ngIf="control.showValidation">
+        <i [hidden]="control.state !== 'pristine'" class="fa fa-circle-thin text-muted"></i>
+        <i [hidden]="control.state !== 'valid'" class="fa fa-check-circle text-success"></i>
+        <i [hidden]="control.state !== 'invalid'" class="fa fa-exclamation-circle text-danger"></i>
+      </span>
+  </label>
+
+  <span *ngIf="loading || control.loading" class="fas fa-spinner-third fa-spin text-muted loading-indicator {{control.type}}"></span>
+
+  <ng-container *ngIf="control.type === FlatFormControlType.INPUT_DATE">
+    <i class="far fa-calendar-alt datepicker-icon text-muted" (click)="toggleDatepicker()"></i>
+  </ng-container>
+</div>
