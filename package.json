@@ -1,6 +1,11 @@
 {
   "name": "ng-flat-form",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "author": "Austen DeWolf",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deausten/ng-flat-form.git"
+  },
   "peerDependencies": {
     "@angular/common": "^8.2.9",
     "@angular/core": "^8.2.9",
