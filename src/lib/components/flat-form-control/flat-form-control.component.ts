@@ -95,7 +95,6 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
   }
 
   public onChange = (data: any, control: FlatFormControl<any>, controls: FlatFormControl<any>[]) => {
-    console.log(data);
     control.state = 'invalid';
     this.control.value = data;
     if (this.control.showLoadingOnChange) {

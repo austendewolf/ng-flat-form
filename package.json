@@ -1,8 +1,8 @@
 {
   "name": "ng-flat-form",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JSON driven dynamic, and reactive forms for Angular applications",
-  "author": "Austen DeWolf",
+  "author": "Austen DeWolsf",
   "repository": {
     "type": "git",
     "url": "https://github.com/deausten/ng-flat-form.git"
@@ -11,6 +11,7 @@
     "@angular/common": "^8.2.9",
     "@angular/core": "^8.2.9",
     "moment": "^2.24.0",
-    "@ng-bootstrap/ng-bootstrap": "^5.2.1"
+    "@ng-bootstrap/ng-bootstrap": "^5.2.1",
+    "@fortawesome/fontawesome-free": "^5.12.0"
   }
 }

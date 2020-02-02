@@ -1,3 +1,6 @@
+//$fa-font-path:   './projects/ng-flat-form/node_modules/@fortawesome/fontawesome-free/webfonts';
+@import          './projects/ng-flat-form/node_modules/@fortawesome/fontawesome-free/scss/fontawesome';
+
 //
 //  sizing
 $zero:  0px;
@@ -13,12 +16,12 @@ $xxxxlrg: 100px;
 //
 //  colors
 //  Application Theme colors
-$app-primary-color: #fff;
-$app-secondary-color: #bec1c3;
-$app-tertiary-color: #ddd;
-$app-quaternary-color: #c3c3c3;
-$app-quinary-color: #efefef;
-$app-senary-color: #afafaf;
+$app-primary-color: #fff; //white
+$app-secondary-color: #bec1c3; //light-gray
+$app-tertiary-color: #6b6b6b; //dark-gray
+//$app-quaternary-color: #c3c3c3; //
+//$app-quinary-color: #efefef;
+//$app-senary-color: #afafaf;
 //$app-septenary-color:#525f7f;
 //$app-octonary-color: #32325d;
 //$app-nonary-color: #2d649e;
@@ -33,3 +36,13 @@ $app-warning-color: #ffc107;
 $border: 1px solid $app-tertiary-color;
 $padding: 10px;
 $label-font-size: 13px;
+
+//
+// typography
+.text-success {
+  color: $app-success-color;
+}
+.text-danger {
+  color: $app-danger-color;
+}
+
