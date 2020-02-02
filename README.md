@@ -1,5 +1,5 @@
 <div align="center">
-  <h2>@ng-flat-form</h2>
+  <h2>ng-flat-form</h2>
   <br />
   JSON driven dynamic forms in a compact form UI for Angular. Package can be downloaded via npm [here](https://www.npmjs.com/package/ng-flat-form).
 
