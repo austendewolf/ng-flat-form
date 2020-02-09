@@ -11,7 +11,7 @@ import {UtilityService} from '../../services/utility.service';
 // import {DatePickerComponent} from '../../../../../../src/app/components/date-picker/date-picker.component';
 
 @Component({
-  selector: 'lib-flat-form-control',
+  selector: 'ng-flat-form-control',
   templateUrl: './flat-form-control.component.html',
   styleUrls: ['./flat-form-control.component.scss']
 })
