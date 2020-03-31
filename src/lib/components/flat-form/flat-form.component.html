@@ -1,19 +1,19 @@
-<form class="flat-form animated fadeIn" *ngIf="form" [formGroup]="form">
-  <fieldset [disabled]="form.disabled">
+<form class="flat-form animated fadeIn" *ngIf="form" [formGroup]="form" autocomplete="off">
+  <fieldset class="text-set" [disabled]="form.disabled">
     <div *ngFor="let controlGroup of form.controlGroups">
-      <ng-direction
+      <lib-direction
         *ngIf="controlGroup.title"
         [title]="controlGroup.title"
         [directions]="controlGroup.description">
-      </ng-direction>
+      </lib-direction>
       <div class="form-section" [ngClass]="{'naked': controlGroup.disableStyles}">
-        <ng-flat-form-control
+        <lib-flat-form-control
           *ngFor="let control of controlGroup.controls"
           [ngClass]="{'bg-danger': form.disabled}"
           [form]="form"
           [controls]="controlGroup.controls"
           [control]="control">
-        </ng-flat-form-control>
+        </lib-flat-form-control>
       </div>
     </div>
   </fieldset>

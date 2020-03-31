@@ -25,6 +25,9 @@ export class FlatFormControl<T> {
   class: string;
   state: string;
   debounceTime: number;
+  autoComplete: boolean;
+  dateInputFormat: string;
+  dateOutputFormat: string;
 
   constructor(options: {
     value?: T,
@@ -54,6 +57,9 @@ export class FlatFormControl<T> {
     selectOptionsMap?: { keyProperty: string, valueProperty: string },
     state?: string,
     debounceTime?: number,
+    autoComplete?: boolean,
+    dateInputFormat?: string,
+    dateOutputFormat?: string
   } = {}) {
     this.value = options.value;
     this.key = options.key || '';
@@ -79,5 +85,8 @@ export class FlatFormControl<T> {
     this.selectOptionsMap = options.selectOptionsMap;
     this.state = options.state;
     this.debounceTime = options.debounceTime || 0;
+    this.autoComplete = options.autoComplete !== false;
+    this.dateInputFormat = options.dateInputFormat;
+    this.dateOutputFormat = options.dateOutputFormat;
   }
 }

@@ -3,5 +3,10 @@
   "dest": "../../dist/ng-flat-form",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "whitelistedNonPeerDependencies": [
+    "cleave.js",
+    "dayjs",
+    "moment"
+  ]
 }

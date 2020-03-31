@@ -11,8 +11,10 @@
     [minlength]="control.minLength"
     [max]="control.max"
     [min]="control.min"
+    [autocomplete]="control.autoComplete"
     (ngModelChange)="onChange($event, control, controls)"
-    class="app-control-input">
+    class="app-control-input"
+  >
 
   <input
     *ngIf="control.type === FlatFormControlType.INPUT_NUMBER"
@@ -26,8 +28,10 @@
     [minlength]="control.minLength"
     [max]="control.max"
     [min]="control.min"
+    [autocomplete]="control.autoComplete"
     (ngModelChange)="onChange($event, control, controls)"
-    class="app-control-input">
+    class="app-control-input"
+  >
 
   <input
     *ngIf="control.type === FlatFormControlType.INPUT_PASSWORD"
@@ -41,8 +45,10 @@
     [minlength]="control.minLength"
     [max]="control.max"
     [min]="control.min"
+    [autocomplete]="control.autoComplete"
     (ngModelChange)="onChange($event, control, controls)"
-    class="app-control-input">
+    class="app-control-input"
+  >
 
   <input
     *ngIf="control.type === FlatFormControlType.INPUT_EMAIL"
@@ -56,25 +62,25 @@
     [minlength]="control.minLength"
     [max]="control.max"
     [min]="control.min"
+    [autocomplete]="control.autoComplete"
     (ngModelChange)="onChange($event, control, controls)"
-    class="app-control-input">
+    class="app-control-input"
+  >
 
   <input
     *ngIf="control.type === FlatFormControlType.INPUT_DATE"
     class="app-control-input"
     autocomplete="off"
+    (focus)="onFocusDateInput()"
+    (blur)="onBlurDateInput()"
     [type]="'text'"
     [id]="control.key"
     [name]="control.key"
     [formControlName]="control.key"
     [placeholder]="control.placeholder"
     [required]="control.required"
-    (change)="onChange($event, control, controls)"
-    (click)="toggleDatepicker()"
-    #datePicker="ngbDatepicker"
-    ngbDatepicker>
-
-<!--  [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY' }"-->
+    (ngModelChange)="onChange($event, control, controls)"
+  >
 
   <textarea
     *ngIf="control.type === FlatFormControlType.TEXTAREA"
@@ -97,27 +103,57 @@
     [formControlName]="control.key"
     [required]="control.required"
     (ngModelChange)="onChange($event, control, controls)"
+    [ngClass]="{'loading': loading || control.loading}"
     class="app-control-input"
-    [ngClass]="{'loading': loading || control.loading}">
+  >
     <option [disabled]="control.required" value="">{{control.placeholder}}</option>
     <option *ngFor="let option of control.selectOptions" [value]="option.key">{{option.value}}</option>
   </select>
 
   <label
     [attr.for]="control.key"
-    class="input-label">
+    class="input-label"
+  >
     {{control.placeholder}}
     <span *ngIf="control.showLength && control.maxLength">({{(value || []).length + ' of ' + control.maxLength}})</span>
     <span *ngIf="control.showValidation">
-        <i [hidden]="control.state !== 'pristine'" class="fa fa-circle-thin text-muted"></i>
-        <i [hidden]="control.state !== 'valid'" class="fa fa-check-circle text-success"></i>
-        <i [hidden]="control.state !== 'invalid'" class="fa fa-exclamation-circle text-danger"></i>
-      </span>
+      <i *ngIf="control.state === 'pristine'" class="fa fa-circle-thin text-muted"></i>
+      <i *ngIf="control.state === 'valid'" class="fa fa-check-circle text-success"></i>
+      <i *ngIf="control.state === 'invalid'" class="fa fa-exclamation-circle text-danger"></i>
+    </span>
   </label>
 
   <span *ngIf="loading || control.loading" class="fas fa-spinner-third fa-spin text-muted loading-indicator {{control.type}}"></span>
 
   <ng-container *ngIf="control.type === FlatFormControlType.INPUT_DATE">
     <i class="far fa-calendar-alt datepicker-icon text-muted" (click)="toggleDatepicker()"></i>
+    <div [hidden]="!displayDatePicker" class="date-picker-container">
+      <div class="date-picker-body">
+        <div class="year-container">
+          <select [ngClass]="{'ng-pristine': !dateStruct.year}" (change)="onSelectYear($event.target.value)" #yearSelect>
+            <option disabled value="">Year</option>
+            <option *ngFor="let year of dateConfig.years" value="{{year.value}}">{{year.display}}</option>
+          </select>
+        </div>
+        <div class="month-container">
+          <select [ngClass]="{'ng-pristine': !dateStruct.month}" (change)="onSelectMonth($event.target.value)" #monthSelect>
+            <option disabled value="">Month</option>
+            <option *ngFor="let month of dateConfig.months" value="{{month.value}}">{{month.display}}</option>
+          </select>
+        </div>
+        <div class="day-container">
+          <select [ngClass]="{'ng-pristine': !dateStruct.day}" (change)="onSelectDay($event.target.value)" #daySelect>
+            <option disabled value="">Day</option>
+            <option *ngFor="let day of dateConfig.days" value="{{day.value}}">{{day.display}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="date-picker-footer">
+        <p>
+          <small>Select a date using the drop-downs above.</small>
+        </p>
+      </div>
+    </div>
   </ng-container>
+
 </div>

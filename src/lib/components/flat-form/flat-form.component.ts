@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {FlatForm} from '../../classes/flat-form';
 
 @Component({
-  selector: 'ng-flat-form',
+  selector: 'lib-flat-form',
   templateUrl: './flat-form.component.html',
   styleUrls: ['./flat-form.component.scss']
 })

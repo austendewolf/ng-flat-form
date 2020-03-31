@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'ng-direction',
+  selector: 'lib-direction',
   templateUrl: './direction.component.html',
   styleUrls: ['./direction.component.scss']
 })

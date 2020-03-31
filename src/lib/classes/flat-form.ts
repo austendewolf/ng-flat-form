@@ -7,13 +7,14 @@ import {
   Validators
 } from '@angular/forms';
 import {FlatFormControlGroup} from './flat-form-control-group';
-import * as moment_ from 'moment';
-const moment = moment_;
 import {FlatFormControl} from './flat-form-control';
 import {FlatFormControlType} from '../enums/FlatFormControlType';
+import {getNested} from '../utilities/utils';
+import * as moment_ from 'moment';
+const moment = moment_;
 
 export class FlatForm extends FormGroup {
-
+  public autoComplete = true;
   public controlGroups: FlatFormControlGroup[];
 
   constructor(
@@ -30,8 +31,6 @@ export class FlatForm extends FormGroup {
     const containsValid = Object.keys(this.controls).find(key => this.controls[key].valid === true) != null;
     const containsUntouched = Object.keys(this.controls).find(key => this.controls[key].untouched === true) != null;
     const containsTouched = Object.keys(this.controls).find(key => this.controls[key].touched === true) != null;
-    // const containsDirty = Object.keys(this.controls).find(property => this.controls[property].dirty === true) != null;
-    // const containsPristine = Object.keys(this.controls).find(property => this.controls[property].pristine === true) != null;
 
     let state = 'untouched';
     if (containsUntouched && !containsTouched) {
@@ -47,7 +46,7 @@ export class FlatForm extends FormGroup {
 
   set status(status: string) {}
 
-  public static extractControls(controlGroups: FlatFormControlGroup[]): {} {
+  private static extractControls(controlGroups: FlatFormControlGroup[]): {} {
     const controls: any = {};
     controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach(control => {
@@ -81,47 +80,31 @@ export class FlatForm extends FormGroup {
     return new FormControl({ value: control.value || '', disabled: control.disabled }, validators);
   }
 
-  private static getNested(theObject: any, path: string, separator: string = '.'): any {
-    try {
-      return path
-        .replace('[', separator)
-        .replace(']', '')
-        .split(separator)
-        .reduce((obj: any, property: string): any => {
-            return obj[property];
-          }, theObject
-      );
-    } catch (err) {
-      return undefined;
-    }
-  }
-
-  public markAllAsDirty(): void {
-
-  }
-
-  public removeAllAsPristine(): void {
-
-  }
-
-  public setForm(object: any): void {
+  public setValue(object: any): void {
+    const controls = {};
+    this.controlGroups.forEach(controlGroup => {
+      controlGroup.controls.forEach(control => {
+        controls[control.key] = control;
+      });
+    });
     const keys = this.getKeys(object, '-');
     keys.forEach((key: string) => {
       if (this.controls[key]) {
-        let value = FlatForm.getNested(object, key, '-');
+        let value = getNested(object, key, '-');
+
+        if (controls[key].type === FlatFormControlType.INPUT_DATE) {
+          const parsedDate = moment(value, controls[key].dateInputFormat);
+          value = parsedDate.format(controls[key].dateOutputFormat);
+        }
+
         if (value) {
-          if (moment(value, moment.ISO_8601, true).isValid()) {
-            value = new Date(value);
-          }
-          this.controls[key].setValue(value, {onlySelf: true});
           this.controls[key].markAsDirty();
           this.controls[key].markAsTouched();
-        } else {
-          this.controls[key].setValue(value, {onlySelf: true});
         }
+
+        this.controls[key].setValue(value);
       }
     });
-    this.updateValueAndValidity({emitEvent: true});
   }
 
   private getKeys(object: any, separator: string, pre?: string, keys: string[] = []): string[] {

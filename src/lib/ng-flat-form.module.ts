@@ -6,7 +6,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UtilityService} from './services/utility.service';
 import {BrowserModule} from '@angular/platform-browser';
 import {DirectionComponent} from './components/direction/direction.component';
-import {NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -19,10 +18,9 @@ import {NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    NgbDatepickerModule,
   ],
   providers: [
-    UtilityService
+    UtilityService,
   ],
   exports: [
     FlatFormControlComponent,
