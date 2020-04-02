@@ -102,7 +102,7 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
   public onFocusDateInput() {
     if (!this.displayDatePicker) {
       this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateInputFormat);
+      this.parseDate(this.control.value, this.control.dateParseFormats);
     }
   }
 
@@ -115,7 +115,7 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
   public onFocusDatePicker() {
     if (!this.displayDatePicker) {
       this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateInputFormat);
+      this.parseDate(this.control.value, this.control.dateParseFormats);
     }
   }
 
@@ -130,7 +130,7 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
       this.displayDatePicker = false;
     } else {
       this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateInputFormat);
+      this.parseDate(this.control.value, this.control.dateParseFormats);
       this.updateDatePicker(this.dateStruct);
     }
   }
@@ -149,6 +149,7 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
     }
 
     if (this.control.type === FlatFormControlType.INPUT_DATE) {
+      this.dateStruct = this.parseDate(data, control.dateParseFormats);
       this.updateDatePicker(this.dateStruct);
     }
 
@@ -247,24 +248,43 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
     return days;
   }
 
-  private parseDate(dateInput: string, dateFormat: string): any {
+  private parseDate(dateInput: string, dateFormats: string[]): any {
     if (!dateInput) {
-      return;
+      return {
+        year: {
+          display: '',
+          string: '',
+        },
+        month: {
+          display: '',
+          string: '',
+        },
+        day: {
+          display: '',
+          string: '',
+        }
+      };
     }
 
-    const date = moment(dateInput, dateFormat);
+    const date = moment(dateInput, dateFormats);
+    const dateStruct = {} as any;
 
-    this.dateStruct.month = { value: date.month() + 1, display: String(date.month('M')) };
-    this.dateStruct.day = { value: date.day(), display: String(date.day()) };
-    this.dateStruct.year = { value: date.year(), display: String(date.year()) };
+    dateStruct.month = { value: date.month() + 1, display: String(date.month('M')) };
+    dateStruct.day = { value: date.date(), display: String(date.date()) };
+    dateStruct.year = { value: date.year(), display: String(date.year()) };
 
-    return date;
+    return dateStruct;
   }
 
   private updateDatePicker(dateStruct: any) {
-    const date = moment()
-    this.monthSelectRef.nativeElement.value = dateStruct.month.value;
-    this.daySelectRef.nativeElement.value = dateStruct.day.value;
-    this.yearSelectRef.nativeElement.value = dateStruct.year.value;
+    if (this.dateStruct.month) {
+      this.monthSelectRef.nativeElement.value = dateStruct.month.value - 1;
+    }
+    if (this.dateStruct.day) {
+      this.daySelectRef.nativeElement.value = dateStruct.day.value;
+    }
+    if (this.dateStruct.year) {
+      this.yearSelectRef.nativeElement.value = dateStruct.year.value;
+    }
   }
 }

@@ -1,15 +1,9 @@
-import {
-  AbstractControlOptions,
-  AsyncValidatorFn,
-  FormControl,
-  FormGroup,
-  ValidatorFn,
-  Validators
-} from '@angular/forms';
+import {AbstractControlOptions, AsyncValidatorFn, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {FlatFormControlGroup} from './flat-form-control-group';
 import {FlatFormControl} from './flat-form-control';
 import {FlatFormControlType} from '../enums/FlatFormControlType';
 import {getNested} from '../utilities/utils';
+import {flatFormDateValidator} from './flat-form-date.directive';
 import * as moment_ from 'moment';
 const moment = moment_;
 
@@ -64,6 +58,9 @@ export class FlatForm extends FormGroup {
     if (control.type === FlatFormControlType.INPUT_EMAIL) {
       validators.push(Validators.email);
     }
+    if (control.type === FlatFormControlType.INPUT_DATE) {
+      validators.push(flatFormDateValidator(control.key, control.dateParseFormats));
+    }
     if (control.maxLength) {
       validators.push(Validators.maxLength(control.maxLength));
     }
@@ -93,7 +90,7 @@ export class FlatForm extends FormGroup {
         let value = getNested(object, key, '-');
 
         if (controls[key].type === FlatFormControlType.INPUT_DATE) {
-          const parsedDate = moment(value, controls[key].dateInputFormat);
+          const parsedDate = moment(value, controls[key].dateParseFormats);
           value = parsedDate.format(controls[key].dateOutputFormat);
         }
 

@@ -26,7 +26,7 @@ export class FlatFormControl<T> {
   state: string;
   debounceTime: number;
   autoComplete: boolean;
-  dateInputFormat: string;
+  dateParseFormats: string[];
   dateOutputFormat: string;
 
   constructor(options: {
@@ -58,7 +58,7 @@ export class FlatFormControl<T> {
     state?: string,
     debounceTime?: number,
     autoComplete?: boolean,
-    dateInputFormat?: string,
+    dateParseFormats?: string[],
     dateOutputFormat?: string
   } = {}) {
     this.value = options.value;
@@ -86,7 +86,7 @@ export class FlatFormControl<T> {
     this.state = options.state;
     this.debounceTime = options.debounceTime || 0;
     this.autoComplete = options.autoComplete !== false;
-    this.dateInputFormat = options.dateInputFormat;
+    this.dateParseFormats = options.dateParseFormats || [];
     this.dateOutputFormat = options.dateOutputFormat;
   }
 }
