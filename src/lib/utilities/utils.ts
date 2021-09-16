@@ -98,3 +98,30 @@ export function closest(element: HTMLElement, selector): HTMLElement | null {
 
   return element.closest(selector);
 }
+
+// Helper function to get an element's exact position
+export function getPosition(element: any) {
+  let xPos = 0;
+  let yPos = 0;
+
+  while (element) {
+    if (element.tagName === 'BODY') {
+      // deal with browser quirks with body/window/document and page scroll
+      const xScroll = element.scrollLeft || document.documentElement.scrollLeft;
+      const yScroll = element.scrollTop || document.documentElement.scrollTop;
+
+      xPos += (element.offsetLeft - xScroll + element.clientLeft);
+      yPos += (element.offsetTop - yScroll + element.clientTop);
+    } else {
+      // for all other non-BODY elements
+      xPos += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+      yPos += (element.offsetTop - element.scrollTop + element.clientTop);
+    }
+
+    element = element.offsetParent;
+  }
+  return {
+    x: xPos,
+    y: yPos
+  };
+}

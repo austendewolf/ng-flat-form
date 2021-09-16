@@ -5,6 +5,10 @@ const moment = moment_;
 
 export function flatFormDateValidator(key: string, formats: string[]): ValidatorFn {
   return (control: AbstractControl): {[key: string]: any} | null => {
+    if (control.pristine && control.untouched) {
+      return null;
+    }
+
     const isValid = moment(control.value, formats, true).isValid();
     const validationObject = {};
     if (!isValid) {

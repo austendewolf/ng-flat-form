@@ -1,23 +1,22 @@
-import {AbstractControlOptions, AsyncValidatorFn, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {FormGroup} from '@angular/forms';
 import {FlatFormControlGroup} from './flat-form-control-group';
 import {FlatFormControl} from './flat-form-control';
 import {FlatFormControlType} from '../enums/FlatFormControlType';
 import {getNested} from '../utilities/utils';
-import {flatFormDateValidator} from './flat-form-date.directive';
 import * as moment_ from 'moment';
 const moment = moment_;
 
-export class FlatForm extends FormGroup {
-  public autoComplete = true;
-  public controlGroups: FlatFormControlGroup[];
+export class FlatForm {
 
-  constructor(
-    controlGroups: FlatFormControlGroup[],
-    validatorOrOpts?: ValidatorFn | ValidatorFn[] | AbstractControlOptions | null | {},
-    asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[] | {}) {
+  public formGroup: FormGroup;
+  public controlGroups: FlatFormControlGroup[] = [];
+  public disabled;
 
-    super(FlatForm.extractControls(controlGroups), validatorOrOpts);
+  constructor(controlGroups: FlatFormControlGroup[], options: { disabled: boolean } = { disabled: false }) {
+
     this.controlGroups = controlGroups;
+    this.formGroup = new FormGroup(this.controls);
+    this.disabled = options.disabled;
   }
 
   get status(): string {
@@ -38,73 +37,106 @@ export class FlatForm extends FormGroup {
     return state;
   }
 
-  set status(status: string) {}
+  get errors(): any {
+    const errors = [];
 
-  private static extractControls(controlGroups: FlatFormControlGroup[]): {} {
-    const controls: any = {};
-    controlGroups.forEach(controlGroup => {
+    this.controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach(control => {
-        controls[control.key] = FlatForm.toFormControl(control);
+        if (control.errors) {
+          Object.keys(control.errors).forEach((errorKey: string) => {
+            if (errorKey !== 'required') {
+              errors.push({
+                field: errorKey,
+                value: control.value,
+                status: control.status
+              });
+            }
+          });
+        }
       });
     });
-    return controls;
+
+    return errors;
   }
 
-  private static toFormControl(control: FlatFormControl<any>): FormControl {
-    const validators = [];
-    if (control.required) {
-      validators.push(Validators.required);
-    }
-    if (control.type === FlatFormControlType.INPUT_EMAIL) {
-      validators.push(Validators.email);
-    }
-    if (control.type === FlatFormControlType.INPUT_DATE) {
-      validators.push(flatFormDateValidator(control.key, control.dateParseFormats));
-    }
-    if (control.maxLength) {
-      validators.push(Validators.maxLength(control.maxLength));
-    }
-    if (control.minLength) {
-      validators.push(Validators.minLength(control.minLength));
-    }
-    if (control.max) {
-      validators.push(Validators.max(control.max));
-    }
-    if (control.min) {
-      validators.push(Validators.min(control.min));
-    }
-
-    return new FormControl({ value: control.value || '', disabled: control.disabled }, validators);
-  }
-
-  public setValue(object: any): void {
+  get controls(): any {
     const controls = {};
+
     this.controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach(control => {
         controls[control.key] = control;
       });
     });
+
+    return controls;
+  }
+
+  public setValue = (object: any, options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
     const keys = this.getKeys(object, '-');
     keys.forEach((key: string) => {
-      if (this.controls[key]) {
+      const control = this.controls[key];
+      if (control) {
         let value = getNested(object, key, '-');
 
-        if (controls[key].type === FlatFormControlType.INPUT_DATE) {
-          const parsedDate = moment(value, controls[key].dateParseFormats);
-          value = parsedDate.format(controls[key].dateOutputFormat);
+        if (control.type === FlatFormControlType.INPUT_DATE) {
+          const parsedDate = moment(value, control.dateParseFormats);
+          value = parsedDate.format(control.dateOutputFormat);
         }
 
         if (value) {
-          this.controls[key].markAsDirty();
-          this.controls[key].markAsTouched();
+          control.markAsDirty();
+          control.markAsTouched();
         }
 
-        this.controls[key].setValue(value);
+        control.setValue(value, options);
       }
     });
   }
 
-  private getKeys(object: any, separator: string, pre?: string, keys: string[] = []): string[] {
+  public reset = (formState?: any, options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+      this.controlGroups.forEach(controlGroup => {
+        controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+          control.reset(formState, options);
+        });
+      });
+  }
+
+  public enable = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+    this.controlGroups.forEach(controlGroup => {
+      controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+        control.enable(options);
+      });
+    });
+  }
+
+  public disable = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+    this.controlGroups.forEach(controlGroup => {
+      controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+        control.disable(options);
+      });
+    });
+  }
+
+  public updateValueAndValidity = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+    this.controlGroups.forEach(controlGroup => {
+      controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+        control.updateValueAndValidity(options);
+      });
+    });
+  }
+
+  public getRawValue = (): any => {
+    const rawValue = {};
+    this.controlGroups.forEach(controlGroup => {
+      controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+        rawValue[control.key] = control.value;
+      });
+    });
+
+    return rawValue;
+  }
+
+  private getKeys = (object: any, separator: string, pre?: string, keys: string[] = []): string[] => {
     Object.keys(object).forEach(key => {
       if (object[key] instanceof Object) {
         this.getKeys(object[key], separator, (pre ? pre + separator + key : key), keys);
@@ -112,6 +144,7 @@ export class FlatForm extends FormGroup {
         keys.push(((pre ? pre + separator : '') + key));
       }
     });
+
     return keys;
   }
 }

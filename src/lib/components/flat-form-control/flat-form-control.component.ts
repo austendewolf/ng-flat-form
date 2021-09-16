@@ -1,11 +1,20 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {FlatFormControl} from '../../classes/flat-form-control';
 import {ValidationErrors} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {FlatForm} from '../../classes/flat-form';
 import {FlatFormControlType} from '../../enums/FlatFormControlType';
-import {getNested, padNumber} from '../../utilities/utils';
+import {getNested, getPosition, padNumber} from '../../utilities/utils';
 import * as moment_ from 'moment';
 
 const moment = moment_;
@@ -16,7 +25,7 @@ const moment = moment_;
   styleUrls: ['./flat-form-control.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class FlatFormControlComponent implements OnInit, AfterViewInit {
+export class FlatFormControlComponent implements OnInit {
 
   public FlatFormControlType = FlatFormControlType;
   @Input() form: FlatForm;
@@ -27,14 +36,25 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
   @ViewChild('monthSelect', {static: false}) monthSelectRef: ElementRef;
   @ViewChild('daySelect', {static: false}) daySelectRef: ElementRef;
   protected controlUpdate: Subject<any> = new Subject();
-  public datePickerFocus = false;
+  public inputFocus = false;
+  public selectFocus = false;
   public displayDatePicker = false;
+  public xCoordinate: number;
+  public yCoordinate: number;
+  public pickerWidth: number;
   public dateConfig: any;
   public dateStruct: {
     year: {display: string, value: number},
     month: {display: string, value: number},
     day: {display: string, value: number}
   } = {} as any;
+  @HostListener('document:keydown.enter', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+    if (this.dateStruct.year && this.dateStruct.year.value
+      && this.dateStruct.month && this.dateStruct.month.value
+      && this.dateStruct.day && this.dateStruct.day.value) {
+      this.displayDatePicker = false;
+    }
+  }
 
   constructor() {}
 
@@ -48,9 +68,11 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
         days: this.getDays(),
       };
     }
+
     if (this.control.type === FlatFormControlType.TEXTAREA) {
       this.control.class += ' auto-height';
     }
+
     if (this.control.selectOptionsAsync) {
       this.control.selectOptions = [];
       this.control.loading = true;
@@ -62,10 +84,6 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
         }));
       });
     }
-  }
-
-  ngAfterViewInit(): void {
-
   }
 
   private subscribeToControlEvents(): void {
@@ -99,30 +117,47 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
     return this.form.controls[this.control.key].pending;
   }
 
-  public onFocusDateInput() {
-    if (!this.displayDatePicker) {
-      this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateParseFormats);
+  public onFocusDateInput(event: any) {
+    const position = getPosition(this.dateInputRef.nativeElement);
+    const width = this.dateInputRef.nativeElement.getBoundingClientRect().width;
+    if (this.control.focus) {
+      this.control.focus(event, this.control, this.controls);
     }
+
+    this.xCoordinate = position.x;
+    this.yCoordinate = position.y + 60;
+    this.pickerWidth = width < 375 ? 375 : width;
+    this.inputFocus = true;
+    this.displayDatePicker = true;
+    this.parseDate(this.control.value, this.control.dateParseFormats);
   }
 
-  public onBlurDateInput() {
-    if (this.displayDatePicker) {
-      this.displayDatePicker = false;
+  public onBlurDateInput(event: any) {
+    this.inputFocus = false;
+    if (this.control.blur) {
+      this.control.blur(event, this.control, this.controls);
     }
+
+    setTimeout(() => {
+      if (!this.inputFocus && !this.selectFocus) {
+        this.displayDatePicker = false;
+      }
+    }, 200);
   }
 
   public onFocusDatePicker() {
-    if (!this.displayDatePicker) {
-      this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateParseFormats);
-    }
+    this.selectFocus = true;
+    this.displayDatePicker = true;
+    this.parseDate(this.control.value, this.control.dateParseFormats);
   }
 
   public onBlurDatePicker() {
-    // if (this.displayDatePicker) {
-    //   this.displayDatePicker = false;
-    // }
+    this.selectFocus = false;
+    setTimeout(() => {
+      if (!this.inputFocus && !this.selectFocus) {
+        this.displayDatePicker = false;
+      }
+    }, 200);
   }
 
   public toggleDatepicker = (): void => {
@@ -184,10 +219,11 @@ export class FlatFormControlComponent implements OnInit, AfterViewInit {
         .year(this.dateStruct.year.value)
         .format(this.control.dateOutputFormat);
 
+      const patchValue = {};
+      patchValue[this.control.key] = date;
+
       this.displayDatePicker = false;
-      this.form.setValue({
-        date
-      });
+      this.form.setValue(patchValue);
     }
   }
 

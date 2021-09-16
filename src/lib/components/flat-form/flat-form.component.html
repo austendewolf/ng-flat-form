@@ -1,4 +1,4 @@
-<form class="flat-form animated fadeIn" *ngIf="form" [formGroup]="form" autocomplete="off">
+<form class="flat-form animated fadeIn" *ngIf="form" [formGroup]="form.formGroup" autocomplete="off">
   <fieldset class="text-set" [disabled]="form.disabled">
     <div *ngFor="let controlGroup of form.controlGroups">
       <lib-direction
