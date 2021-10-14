@@ -140,31 +140,34 @@
 
   <ng-container *ngIf="control.type === FlatFormControlType.INPUT_DATE">
     <i class="far fa-calendar-alt datepicker-icon text-muted" (click)="toggleDatepicker()"></i>
-    <div [hidden]="!displayDatePicker" class="date-picker-container" [style.left.px]="xCoordinate" [style.top.px]="yCoordinate" [style.width.px]="pickerWidth">
+    <div [hidden]="!displayDatePicker" class="date-picker-container" [style.left.px]="position.left" [style.top.px]="position.bottom">
       <div class="date-picker-body">
-        <div class="year-container">
-          <select [ngClass]="{'ng-pristine': !dateStruct.year}" (change)="onSelectYear($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #yearSelect>
-            <option disabled value="">Year</option>
-            <option *ngFor="let year of dateConfig.years" value="{{year.value}}">{{year.display}}</option>
-          </select>
-        </div>
         <div class="month-container">
           <select [ngClass]="{'ng-pristine': !dateStruct.month}" (change)="onSelectMonth($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #monthSelect>
             <option disabled value="">Month</option>
             <option *ngFor="let month of dateConfig.months" value="{{month.value}}">{{month.display}}</option>
           </select>
+          <label [attr.for]="control.key" class="input-label">Month</label>
         </div>
         <div class="day-container">
           <select [ngClass]="{'ng-pristine': !dateStruct.day}" (change)="onSelectDay($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #daySelect>
             <option disabled value="">Day</option>
             <option *ngFor="let day of dateConfig.days" value="{{day.value}}">{{day.display}}</option>
           </select>
+          <label [attr.for]="control.key" class="input-label">Day</label>
+        </div>
+        <div class="year-container">
+          <select [ngClass]="{'ng-pristine': !dateStruct.year}" (change)="onSelectYear($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #yearSelect>
+            <option disabled value="">Year</option>
+            <option *ngFor="let year of dateConfig.years" value="{{year.value}}">{{year.display}}</option>
+          </select>
+          <label [attr.for]="control.key" class="input-label">Year</label>
         </div>
       </div>
       <div class="date-picker-footer">
-        <p>
-          <small>Select a date using the drop downs above.</small>
-        </p>
+        <a class="small" (click)="handleOnClickToday($event)">Today</a>
+        <span class="text-muted link-separator">|</span>
+        <a class="small" (click)="handleOnClickClearDatePicker($event)">Clear</a>
       </div>
     </div>
   </ng-container>

@@ -78,7 +78,7 @@ export class FlatForm {
       if (control) {
         let value = getNested(object, key, '-');
 
-        if (control.type === FlatFormControlType.INPUT_DATE) {
+        if (control.type === FlatFormControlType.INPUT_DATE && value) {
           const parsedDate = moment(value, control.dateParseFormats);
           value = parsedDate.format(control.dateOutputFormat);
         }

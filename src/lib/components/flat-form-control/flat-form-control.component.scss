@@ -174,7 +174,6 @@
   textarea {
     height: auto;
     padding: 20px 7px 5px 10px !important;
-    margin-bottom: -6px;
     &.ng-valid:not(.ng-pristine),
     &.ng-invalid:not(.ng-pristine),
     &:focus {
@@ -205,33 +204,41 @@
 }
 .date-picker-container {
   min-width: 375px;
-  position: fixed;
-  height: 100px;
+  position: absolute;
+  //height: 100px;
   background-color: #fff;
   border-top: none;
   z-index: 1;
   box-shadow: 0 7px 14px 0 rgba(50,50,93,.6), 0 3px 6px 0 rgba(0,0,0,.1);
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
+  display: flex;
+  flex-direction: column;
+}
+.date-picker-body {
+  //line-height: 60px;
+  height: 60px;
 }
 .date-picker-body {
   display: flex;
-}
-.year-container, .month-container, .day-container {
   flex-grow: 1;
+}
+.year-container,
+.month-container,
+.day-container {
+  position: relative;
+  flex-grow: 1;
+
   ul {
     list-style: none;
   }
 }
-.year-container, .month-container {
+.month-container,
+.day-container {
   border-right: 1px solid #dee2e6;
 }
 .date-picker-footer {
   background-color: #efefef;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
   height: 40px;
   line-height: 40px;
   text-align: center;
@@ -241,5 +248,13 @@
     padding: 0;
     margin: 0;
   };
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+.link-separator {
+  margin: 0 15px;
 }
 

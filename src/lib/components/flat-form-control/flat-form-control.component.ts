@@ -39,8 +39,8 @@ export class FlatFormControlComponent implements OnInit {
   public inputFocus = false;
   public selectFocus = false;
   public displayDatePicker = false;
-  public xCoordinate: number;
-  public yCoordinate: number;
+  // tslint:disable-next-line:max-line-length
+  public position: { top: number, right: number, bottom: number, left: number, width: number, height: number, x: number, y: number } = {} as any;
   public pickerWidth: number;
   public dateConfig: any;
   public dateStruct: {
@@ -60,6 +60,7 @@ export class FlatFormControlComponent implements OnInit {
 
   ngOnInit(): void {
     this.subscribeToControlEvents();
+
     if (this.control.type === FlatFormControlType.INPUT_DATE) {
       const m = moment();
       this.dateConfig = {
@@ -117,16 +118,36 @@ export class FlatFormControlComponent implements OnInit {
     return this.form.controls[this.control.key].pending;
   }
 
+  public getControlState = (control: FlatFormControl<any>): string => {
+    const formElement = this.form.controls[control.key];
+    if (formElement) {
+      if (formElement.pristine && !formElement.touched) {
+        return 'pristine';
+      }
+      if (formElement.valid) {
+        return 'valid';
+      }
+      if (formElement.invalid && formElement.dirty) {
+        return 'invalid';
+      }
+    }
+  }
+
   public onFocusDateInput(event: any) {
-    const position = getPosition(this.dateInputRef.nativeElement);
-    const width = this.dateInputRef.nativeElement.getBoundingClientRect().width;
+    this.position = {
+      ...getPosition(this.dateInputRef.nativeElement),
+      left: 0,
+      bottom: 60,
+    };
+
+    if (this.control.class.indexOf('dropdown-menu-right') !== -1) {
+      this.position.left = this.position.left - (375 - this.position.width);
+    }
+
     if (this.control.focus) {
       this.control.focus(event, this.control, this.controls);
     }
 
-    this.xCoordinate = position.x;
-    this.yCoordinate = position.y + 60;
-    this.pickerWidth = width < 375 ? 375 : width;
     this.inputFocus = true;
     this.displayDatePicker = true;
     this.parseDate(this.control.value, this.control.dateParseFormats);
@@ -157,7 +178,7 @@ export class FlatFormControlComponent implements OnInit {
       if (!this.inputFocus && !this.selectFocus) {
         this.displayDatePicker = false;
       }
-    }, 200);
+    }, 100);
   }
 
   public toggleDatepicker = (): void => {
@@ -188,14 +209,8 @@ export class FlatFormControlComponent implements OnInit {
       this.updateDatePicker(this.dateStruct);
     }
 
+    // console.log(data);
     this.controlUpdate.next({data, control, controls});
-  }
-
-  public onSelectYear(year: number) {
-    this.dateStruct.year = {
-      display: String(year),
-      value: year,
-    };
   }
 
   public onSelectMonth(month: number) {
@@ -203,7 +218,8 @@ export class FlatFormControlComponent implements OnInit {
       display: moment.months(Number(month)),
       value: Number(month) + 1,
     };
-    this.dateConfig.days = this.getDays(this.dateStruct.year.value, Number(month) + 1);
+
+    this.dateConfig.days = this.getDays(this.dateStruct.year ? this.dateStruct.year.value : moment().year(), Number(month) + 1);
   }
 
   public onSelectDay(day: number) {
@@ -211,8 +227,15 @@ export class FlatFormControlComponent implements OnInit {
       display: String(day),
       value: day,
     };
+  }
 
-    if (this.dateStruct.year.value && this.dateStruct.month.value) {
+  public onSelectYear(year: number) {
+    this.dateStruct.year = {
+      display: String(year),
+      value: year,
+    };
+
+    if (this.dateStruct.day && this.dateStruct.day.value && this.dateStruct.month && this.dateStruct.month.value) {
       const date = moment()
         .date(this.dateStruct.day.value)
         .month(this.dateStruct.month.value)
@@ -227,19 +250,14 @@ export class FlatFormControlComponent implements OnInit {
     }
   }
 
-  public getControlState = (control: FlatFormControl<any>): string => {
-    const formElement = this.form.controls[control.key];
-    if (formElement) {
-      if (formElement.pristine && !formElement.touched) {
-        return 'pristine';
-      }
-      if (formElement.valid) {
-        return 'valid';
-      }
-      if (formElement.invalid && formElement.dirty) {
-        return 'invalid';
-      }
-    }
+  public handleOnClickToday = ($event: MouseEvent): void => {
+    this.control.setValue(moment().format(this.control.dateOutputFormat));
+    this.control.markAsDirty();
+    this.control.markAsTouched();
+  }
+
+  public handleOnClickClearDatePicker = ($event: MouseEvent): void => {
+    this.control.reset();
   }
 
   private getYears() {
