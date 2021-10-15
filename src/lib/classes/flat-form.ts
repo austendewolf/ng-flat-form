@@ -4,6 +4,7 @@ import {FlatFormControl} from './flat-form-control';
 import {FlatFormControlType} from '../enums/FlatFormControlType';
 import {getNested} from '../utilities/utils';
 import * as moment_ from 'moment';
+
 const moment = moment_;
 
 export class FlatForm {
@@ -71,7 +72,10 @@ export class FlatForm {
     return controls;
   }
 
-  public setValue = (object: any, options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+  public setValue = (
+    object: any,
+    options?: { emitEvent?: boolean, onlySelf?: boolean, emitViewToModelChange?: boolean, emitModelToViewChange?: boolean }
+  ): void => {
     const keys = this.getKeys(object, '-');
     keys.forEach((key: string) => {
       const control = this.controls[key];
@@ -93,15 +97,20 @@ export class FlatForm {
     });
   }
 
-  public reset = (formState?: any, options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+  // tslint:disable-next-line:max-line-length
+  public reset = (formState?: any, options?: { emitEvent?: boolean, onlySelf?: boolean, emitViewToModelChange?: boolean, emitModelToViewChange?: boolean }): void => {
       this.controlGroups.forEach(controlGroup => {
         controlGroup.controls.forEach((control: FlatFormControl<any>) => {
+          if (control.type === FlatFormControlType.INPUT_DATE) {
+            console.log('before reset control');
+          }
           control.reset(formState, options);
         });
       });
   }
 
-  public enable = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+  // tslint:disable-next-line:max-line-length
+  public enable = (options?: { emitEvent?: boolean, onlySelf?: boolean, emitViewToModelChange?: boolean, emitModelToViewChange?: boolean }): void => {
     this.controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach((control: FlatFormControl<any>) => {
         control.enable(options);
@@ -109,7 +118,8 @@ export class FlatForm {
     });
   }
 
-  public disable = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+  // tslint:disable-next-line:max-line-length
+  public disable = (options?: { emitEvent?: boolean, onlySelf?: boolean, emitViewToModelChange?: boolean, emitModelToViewChange?: boolean }): void => {
     this.controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach((control: FlatFormControl<any>) => {
         control.disable(options);
@@ -117,7 +127,8 @@ export class FlatForm {
     });
   }
 
-  public updateValueAndValidity = (options?: { emitEvent?: boolean, onlySelf?: boolean }): void => {
+  // tslint:disable-next-line:max-line-length
+  public updateValueAndValidity = (options?: { emitEvent?: boolean, onlySelf?: boolean, emitViewToModelChange?: boolean, emitModelToViewChange?: boolean }): void => {
     this.controlGroups.forEach(controlGroup => {
       controlGroup.controls.forEach((control: FlatFormControl<any>) => {
         control.updateValueAndValidity(options);

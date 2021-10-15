@@ -60,10 +60,6 @@
     }
   }
 
-  //input {
-  //  height: 100% !important;
-  //}
-
   label {
     font-family: sans-serif;
   }
@@ -196,12 +192,14 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 }
+
 .datepicker-icon {
   cursor: pointer;
   position: absolute;
   top: 22px;
   right: 15px;
 }
+
 .date-picker-container {
   min-width: 375px;
   position: absolute;
@@ -215,14 +213,17 @@
   display: flex;
   flex-direction: column;
 }
+
 .date-picker-body {
   //line-height: 60px;
   height: 60px;
 }
+
 .date-picker-body {
   display: flex;
   flex-grow: 1;
 }
+
 .year-container,
 .month-container,
 .day-container {
@@ -233,10 +234,12 @@
     list-style: none;
   }
 }
+
 .month-container,
 .day-container {
   border-right: 1px solid #dee2e6;
 }
+
 .date-picker-footer {
   background-color: #efefef;
   height: 40px;

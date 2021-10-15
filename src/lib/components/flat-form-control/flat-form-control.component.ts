@@ -16,6 +16,10 @@ import {FlatForm} from '../../classes/flat-form';
 import {FlatFormControlType} from '../../enums/FlatFormControlType';
 import {getNested, getPosition, padNumber} from '../../utilities/utils';
 import * as moment_ from 'moment';
+import {Event} from '@angular/router';
+import {DateStruct} from '../../interfaces/date-struct.interface';
+import {DomPosition} from '../../interfaces/dom-position.interface';
+import {flatFormDateValidator} from '../../classes/flat-form-date.directive';
 
 const moment = moment_;
 
@@ -27,31 +31,22 @@ const moment = moment_;
 })
 export class FlatFormControlComponent implements OnInit {
 
-  public FlatFormControlType = FlatFormControlType;
   @Input() form: FlatForm;
-  @Input() controls: FlatFormControl<any>[];
   @Input() control: FlatFormControl<any>;
   @ViewChild('dateInput', {static: false}) dateInputRef: ElementRef;
   @ViewChild('yearSelect', {static: false}) yearSelectRef: ElementRef;
   @ViewChild('monthSelect', {static: false}) monthSelectRef: ElementRef;
   @ViewChild('daySelect', {static: false}) daySelectRef: ElementRef;
-  protected controlUpdate: Subject<any> = new Subject();
+  public FlatFormControlType = FlatFormControlType;
   public inputFocus = false;
   public selectFocus = false;
   public displayDatePicker = false;
-  // tslint:disable-next-line:max-line-length
-  public position: { top: number, right: number, bottom: number, left: number, width: number, height: number, x: number, y: number } = {} as any;
-  public pickerWidth: number;
   public dateConfig: any;
-  public dateStruct: {
-    year: {display: string, value: number},
-    month: {display: string, value: number},
-    day: {display: string, value: number}
-  } = {} as any;
+  public position: DomPosition = {};
+  public dateStruct: DateStruct = {};
+  private controlUpdate: Subject<any> = new Subject();
   @HostListener('document:keydown.enter', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-    if (this.dateStruct.year && this.dateStruct.year.value
-      && this.dateStruct.month && this.dateStruct.month.value
-      && this.dateStruct.day && this.dateStruct.day.value) {
+    if (this.displayDatePicker) {
       this.displayDatePicker = false;
     }
   }
@@ -62,7 +57,6 @@ export class FlatFormControlComponent implements OnInit {
     this.subscribeToControlEvents();
 
     if (this.control.type === FlatFormControlType.INPUT_DATE) {
-      const m = moment();
       this.dateConfig = {
         years: this.getYears(),
         months: this.getMonths(),
@@ -74,7 +68,7 @@ export class FlatFormControlComponent implements OnInit {
       this.control.class += ' auto-height';
     }
 
-    if (this.control.selectOptionsAsync) {
+    if (this.control.type === FlatFormControlType.SELECT && this.control.selectOptionsAsync) {
       this.control.selectOptions = [];
       this.control.loading = true;
       this.control.selectOptionsAsync().then(response => {
@@ -93,47 +87,30 @@ export class FlatFormControlComponent implements OnInit {
       .pipe(distinctUntilChanged())
       .subscribe(event => {
         if (this.control.onChange) {
-          this.control.onChange(event.data, event.control, event.controls);
+          this.control.onChange(event.data, event.control);
         }
       });
   }
 
-  protected get isValid(): boolean {
-    return this.form.controls[this.control.key].valid;
-  }
-
-  protected get status(): string {
-    return this.form.controls[this.control.key].status;
-  }
-
-  protected get errors(): ValidationErrors {
-    return this.form.controls[this.control.key].errors;
-  }
-
-  public get value(): any {
-    return this.form.controls[this.control.key].value;
-  }
-
-  public get loading(): any {
-    return this.form.controls[this.control.key].pending;
-  }
-
-  public getControlState = (control: FlatFormControl<any>): string => {
-    const formElement = this.form.controls[control.key];
-    if (formElement) {
-      if (formElement.pristine && !formElement.touched) {
-        return 'pristine';
-      }
-      if (formElement.valid) {
-        return 'valid';
-      }
-      if (formElement.invalid && formElement.dirty) {
-        return 'invalid';
-      }
+  public handleOnChange = (data: any, control: FlatFormControl<any>) => {
+    if (this.control.showLoadingOnChange) {
+      control.loading = true;
     }
+
+    this.control.value = data;
+    if (!this.control.manualValidation) {
+      this.form.controls[control.key].updateValueAndValidity();
+    }
+
+    if (this.control.type === FlatFormControlType.INPUT_DATE) {
+      this.parseDate(data, control.dateParseFormats);
+      this.setDateValue(this.dateStruct);
+    }
+
+    this.controlUpdate.next({data, control});
   }
 
-  public onFocusDateInput(event: any) {
+  public handleOnFocusDateInput(event: any) {
     this.position = {
       ...getPosition(this.dateInputRef.nativeElement),
       left: 0,
@@ -145,18 +122,19 @@ export class FlatFormControlComponent implements OnInit {
     }
 
     if (this.control.focus) {
-      this.control.focus(event, this.control, this.controls);
+      this.control.focus(event, this.control);
     }
 
     this.inputFocus = true;
     this.displayDatePicker = true;
     this.parseDate(this.control.value, this.control.dateParseFormats);
+    this.setDateValue(this.dateStruct, false);
   }
 
-  public onBlurDateInput(event: any) {
+  public handleOnBlurDateInput(event: any) {
     this.inputFocus = false;
     if (this.control.blur) {
-      this.control.blur(event, this.control, this.controls);
+      this.control.blur(event, this.control);
     }
 
     setTimeout(() => {
@@ -166,88 +144,66 @@ export class FlatFormControlComponent implements OnInit {
     }, 200);
   }
 
-  public onFocusDatePicker() {
+  public handleOnClickDatePickerIcon = ($event: any): void => {
+    if (this.displayDatePicker) {
+      this.displayDatePicker = false;
+    } else {
+      this.handleOnFocusDateInput($event);
+    }
+  }
+
+  public handleOnFocusDatePicker() {
     this.selectFocus = true;
     this.displayDatePicker = true;
     this.parseDate(this.control.value, this.control.dateParseFormats);
   }
 
-  public onBlurDatePicker() {
+  public handleOnBlurDatePicker() {
     this.selectFocus = false;
     setTimeout(() => {
       if (!this.inputFocus && !this.selectFocus) {
         this.displayDatePicker = false;
+        this.dateStruct = {};
+        this.monthSelectRef.nativeElement.value = '';
+        this.daySelectRef.nativeElement.value = '';
+        this.yearSelectRef.nativeElement.value = '';
       }
     }, 100);
   }
 
-  public toggleDatepicker = (): void => {
-    if (this.displayDatePicker) {
-      this.displayDatePicker = false;
-    } else {
-      this.displayDatePicker = true;
-      this.parseDate(this.control.value, this.control.dateParseFormats);
-      this.updateDatePicker(this.dateStruct);
-    }
-  }
+  public handleOnSelectMonth = ($event: any): void => {
+    const month = $event.target.value;
 
-  public onChange = (data: any, control: FlatFormControl<any>, controls: FlatFormControl<any>[]) => {
-    control.state = 'invalid';
-
-    if (this.control.showLoadingOnChange) {
-      control.loading = true;
-    }
-
-    this.control.value = data;
-    if (!this.control.manualValidation) {
-      this.form.controls[control.key].updateValueAndValidity();
-      this.control.state = this.getControlState(control);
-    }
-
-    if (this.control.type === FlatFormControlType.INPUT_DATE) {
-      this.dateStruct = this.parseDate(data, control.dateParseFormats);
-      this.updateDatePicker(this.dateStruct);
-    }
-
-    // console.log(data);
-    this.controlUpdate.next({data, control, controls});
-  }
-
-  public onSelectMonth(month: number) {
     this.dateStruct.month = {
       display: moment.months(Number(month)),
-      value: Number(month) + 1,
+      value: Number(month),
     };
 
-    this.dateConfig.days = this.getDays(this.dateStruct.year ? this.dateStruct.year.value : moment().year(), Number(month) + 1);
+    this.dateConfig.days = this.getDays(this.dateStruct.year ? this.dateStruct.year.value : moment().year(), Number(month));
+
+    this.setDateValue(this.dateStruct);
   }
 
-  public onSelectDay(day: number) {
+  public handleOnSelectDay = ($event: any): void => {
+    const day = $event.target.value;
+
     this.dateStruct.day = {
       display: String(day),
       value: day,
     };
+
+    this.setDateValue(this.dateStruct);
   }
 
-  public onSelectYear(year: number) {
+  public handleOnSelectYear = ($event: any): void => {
+    const year = $event.target.value;
+
     this.dateStruct.year = {
       display: String(year),
       value: year,
     };
 
-    if (this.dateStruct.day && this.dateStruct.day.value && this.dateStruct.month && this.dateStruct.month.value) {
-      const date = moment()
-        .date(this.dateStruct.day.value)
-        .month(this.dateStruct.month.value)
-        .year(this.dateStruct.year.value)
-        .format(this.control.dateOutputFormat);
-
-      const patchValue = {};
-      patchValue[this.control.key] = date;
-
-      this.displayDatePicker = false;
-      this.form.setValue(patchValue);
-    }
+    this.setDateValue(this.dateStruct);
   }
 
   public handleOnClickToday = ($event: MouseEvent): void => {
@@ -257,24 +213,83 @@ export class FlatFormControlComponent implements OnInit {
   }
 
   public handleOnClickClearDatePicker = ($event: MouseEvent): void => {
+    this.dateStruct = {};
+    this.monthSelectRef.nativeElement.value = '';
+    this.daySelectRef.nativeElement.value = '';
+    this.yearSelectRef.nativeElement.value = '';
     this.control.reset();
   }
 
-  private getYears() {
+  private parseDate = (dateInput: string | undefined, dateFormats: string[]): void => {
+    if (!dateInput) {
+      return;
+    }
+
+    const date = moment(dateInput, dateFormats);
+
+    this.dateStruct.month = { value: date.month(), display: String(date.month('M')) };
+    this.dateStruct.day = { value: date.date(), display: String(date.date()) };
+    this.dateStruct.year = { value: date.year(), display: String(date.year()) };
+  }
+
+  private setDateValue = (dateStruct: any, hideDatePickerOnParse: boolean = true): void => {
+    if (dateStruct.month) {
+      this.monthSelectRef.nativeElement.value = dateStruct.month.value;
+    }
+    if (dateStruct.day) {
+      this.daySelectRef.nativeElement.value = dateStruct.day.value;
+    }
+    if (dateStruct.year) {
+      this.yearSelectRef.nativeElement.value = dateStruct.year.value;
+    }
+
+    if (this.dateStruct.day
+      && this.dateStruct.day.value
+      && this.dateStruct.month
+      && this.dateStruct.month.value
+      && this.dateStruct.year
+      && this.dateStruct.year.value) {
+
+      const date = moment()
+        .date(this.dateStruct.day.value)
+        .month(this.dateStruct.month.value)
+        .year(this.dateStruct.year.value)
+        .format(this.control.dateOutputFormat);
+
+      if (hideDatePickerOnParse) {
+        this.displayDatePicker = false;
+        this.dateStruct = {};
+        this.monthSelectRef.nativeElement.value = '';
+        this.daySelectRef.nativeElement.value = '';
+        this.yearSelectRef.nativeElement.value = '';
+      }
+
+      const patchValue = {};
+      patchValue[this.control.key] = date;
+
+      this.form.setValue(patchValue, { emitViewToModelChange: false });
+
+      if (this.control.onChange) {
+        this.control.onChange(date, this.control);
+      }
+    }
+  }
+
+  private getYears = (): any => {
     let counter = 0;
-    const startYear = moment().year() - 100;
+    const startYear = moment().year();
     const years = [];
-    while (counter <= 150) {
+    while (counter <= 50) {
       years.push({
-        display: (startYear + counter),
-        value: (startYear + counter)
+        display: (startYear - counter),
+        value: (startYear - counter)
       });
       counter++;
     }
     return years;
   }
 
-  private getMonths() {
+  private getMonths = (): any => {
     let counter = 0;
     const months = [];
     while (counter <= 11) {
@@ -288,7 +303,7 @@ export class FlatFormControlComponent implements OnInit {
     return months;
   }
 
-  private getDays(year?: number, month?: number) {
+  private getDays = (year?: number, month?: number): any => {
     let counter = 1;
     const daysInMonth = (year && month) ? moment(year + '-' + padNumber(month), 'YYYY-MM').daysInMonth() : 31;
     const days = [];
@@ -300,45 +315,5 @@ export class FlatFormControlComponent implements OnInit {
       counter++;
     }
     return days;
-  }
-
-  private parseDate(dateInput: string, dateFormats: string[]): any {
-    if (!dateInput) {
-      return {
-        year: {
-          display: '',
-          string: '',
-        },
-        month: {
-          display: '',
-          string: '',
-        },
-        day: {
-          display: '',
-          string: '',
-        }
-      };
-    }
-
-    const date = moment(dateInput, dateFormats);
-    const dateStruct = {} as any;
-
-    dateStruct.month = { value: date.month() + 1, display: String(date.month('M')) };
-    dateStruct.day = { value: date.date(), display: String(date.date()) };
-    dateStruct.year = { value: date.year(), display: String(date.year()) };
-
-    return dateStruct;
-  }
-
-  private updateDatePicker(dateStruct: any) {
-    if (this.dateStruct.month) {
-      this.monthSelectRef.nativeElement.value = dateStruct.month.value - 1;
-    }
-    if (this.dateStruct.day) {
-      this.daySelectRef.nativeElement.value = dateStruct.day.value;
-    }
-    if (this.dateStruct.year) {
-      this.yearSelectRef.nativeElement.value = dateStruct.year.value;
-    }
   }
 }

@@ -7,7 +7,6 @@ export class FlatFormControl<T> extends FormControl {
   key: string;
   placeholder: string;
   required: boolean;
-  // disabled: boolean;
   type: FlatFormControlType;
   maxLength: number;
   minLength: number;
@@ -21,13 +20,12 @@ export class FlatFormControl<T> extends FormControl {
   showValidation: boolean;
   manualValidation: boolean;
   showLength: boolean;
-  onChange: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void;
-  focus: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void;
-  blur: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void;
+  onChange: (event: any, control: FlatFormControl<T>) => void;
+  focus: (event: any, control: FlatFormControl<T>) => void;
+  blur: (event: any, control: FlatFormControl<T>) => void;
   selectOptionsAsync: () => any;
   selectOptionsMap: { keyProperty: string, valueProperty: string };
   class: string;
-  state: string;
   debounceTime: number;
   autoComplete: boolean;
   dateParseFormats: string[];
@@ -56,12 +54,11 @@ export class FlatFormControl<T> extends FormControl {
     class?: string,
     title?: string,
     description?: string,
-    onChange?: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void,
-    focus?: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void,
-    blur?: (event: any, control: FlatFormControl<T>, controls: FlatFormControl<T>[]) => void,
+    onChange?: (event: any, control: FlatFormControl<T>) => void,
+    focus?: (event: any, control: FlatFormControl<T>) => void,
+    blur?: (event: any, control: FlatFormControl<T>) => void,
     selectOptionsAsync?: () => any,
     selectOptionsMap?: { keyProperty: string, valueProperty: string },
-    state?: string,
     debounceTime?: number,
     autoComplete?: boolean,
     dateParseFormats?: string[],
@@ -73,7 +70,6 @@ export class FlatFormControl<T> extends FormControl {
     this.key = options.key || '';
     this.placeholder = options.placeholder || '';
     this.required = !!options.required;
-    // this.disabled = !!options.disabled;
     this.type = options.type || FlatFormControlType.INPUT_TEXT;
     this.maxLength = options.maxLength;
     this.minLength = options.minLength;
@@ -93,13 +89,36 @@ export class FlatFormControl<T> extends FormControl {
     this.blur = options.blur;
     this.selectOptionsAsync = options.selectOptionsAsync;
     this.selectOptionsMap = options.selectOptionsMap;
-    this.state = options.state;
     this.debounceTime = options.debounceTime || 0;
     this.autoComplete = options.autoComplete !== false;
     this.dateParseFormats = options.dateParseFormats || [];
     this.dateOutputFormat = options.dateOutputFormat;
   }
 
+  // tslint:disable-next-line:variable-name
+  private _state: string;
+
+  public get state(): string {
+    if (this.manualValidation) {
+      return this._state;
+    }
+
+    if (this.pristine && !this.touched) {
+      return 'pristine';
+    }
+    if (this.valid) {
+      return 'valid';
+    }
+    if (this.invalid && this.dirty) {
+      return 'invalid';
+    }
+  }
+
+  public set state(value: string | undefined) {
+    this._state = value;
+  }
+
+  // tslint:disable-next-line:member-ordering
   private static getValidators(control: FlatFormControl<any>): any[] {
     const validators = [];
     if (control.required) {

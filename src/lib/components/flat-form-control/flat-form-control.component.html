@@ -12,9 +12,9 @@
     [max]="control.max"
     [min]="control.min"
     [autocomplete]="control.autoComplete"
-    (ngModelChange)="onChange($event, control, controls)"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input"
   >
 
@@ -31,9 +31,9 @@
     [max]="control.max"
     [min]="control.min"
     [autocomplete]="control.autoComplete"
-    (ngModelChange)="onChange($event, control, controls)"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input"
   >
 
@@ -50,9 +50,9 @@
     [max]="control.max"
     [min]="control.min"
     [autocomplete]="control.autoComplete"
-    (ngModelChange)="onChange($event, control, controls)"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input"
   >
 
@@ -69,9 +69,9 @@
     [max]="control.max"
     [min]="control.min"
     [autocomplete]="control.autoComplete"
-    (ngModelChange)="onChange($event, control, controls)"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input"
   >
 
@@ -80,15 +80,15 @@
     class="app-control-input"
     autocomplete="off"
     #dateInput
-    (focus)="onFocusDateInput($event)"
-    (blur)="onBlurDateInput($event)"
+    (focus)="handleOnFocusDateInput($event)"
+    (blur)="handleOnBlurDateInput($event)"
     [type]="'text'"
     [id]="control.key"
     [name]="control.key"
     [formControlName]="control.key"
     [placeholder]="control.placeholder"
     [required]="control.required"
-    (ngModelChange)="onChange($event, control, controls)"
+    (ngModelChange)="handleOnChange($event, control)"
   >
 
   <textarea
@@ -101,9 +101,9 @@
     [required]="control.required"
     [maxlength]="control.maxLength"
     [minlength]="control.minLength"
-    (ngModelChange)="onChange($event, control, controls)"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input">
   </textarea>
 
@@ -113,10 +113,10 @@
     [name]="control.key"
     [formControlName]="control.key"
     [required]="control.required"
-    (ngModelChange)="onChange($event, control, controls)"
-    [ngClass]="{'loading': loading || control.loading}"
-    (focus)="control.focus ? control.focus($event, control, controls) : undefined"
-    (blur)="control.blur ? control.blur($event, control, controls) : undefined"
+    (ngModelChange)="handleOnChange($event, control)"
+    [ngClass]="{'loading': control.loading}"
+    (focus)="control.focus ? control.focus($event, control) : undefined"
+    (blur)="control.blur ? control.blur($event, control) : undefined"
     class="app-control-input"
   >
     <option [disabled]="control.required" value="">{{control.placeholder}}</option>
@@ -128,7 +128,7 @@
     class="input-label"
   >
     {{control.placeholder}}
-    <span *ngIf="control.showLength && control.maxLength">({{(value || []).length + ' of ' + control.maxLength}})</span>
+    <span *ngIf="control.showLength && control.maxLength">({{(control.value || []).length + ' of ' + control.maxLength}})</span>
     <span *ngIf="control.showValidation">
       <i *ngIf="control.state === 'pristine'" class="fa fa-circle-thin text-muted"></i>
       <i *ngIf="control.state === 'valid'" class="fa fa-check-circle text-success"></i>
@@ -136,28 +136,28 @@
     </span>
   </label>
 
-  <span *ngIf="loading || control.loading" class="fas fa-spinner-third fa-spin text-muted loading-indicator {{control.type}}"></span>
+  <span *ngIf="control.loading" class="fas fa-spinner-third fa-spin text-muted loading-indicator {{control.type}}"></span>
 
   <ng-container *ngIf="control.type === FlatFormControlType.INPUT_DATE">
-    <i class="far fa-calendar-alt datepicker-icon text-muted" (click)="toggleDatepicker()"></i>
+    <i class="far fa-calendar-alt datepicker-icon text-muted" (click)="handleOnClickDatePickerIcon($event)" (blur)="handleOnBlurDateInput($event)"></i>
     <div [hidden]="!displayDatePicker" class="date-picker-container" [style.left.px]="position.left" [style.top.px]="position.bottom">
       <div class="date-picker-body">
         <div class="month-container">
-          <select [ngClass]="{'ng-pristine': !dateStruct.month}" (change)="onSelectMonth($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #monthSelect>
+          <select [ngClass]="{'ng-pristine': !dateStruct.month}" (change)="handleOnSelectMonth($event)" (focus)="handleOnFocusDatePicker()" (blur)="handleOnBlurDatePicker()" #monthSelect>
             <option disabled value="">Month</option>
             <option *ngFor="let month of dateConfig.months" value="{{month.value}}">{{month.display}}</option>
           </select>
           <label [attr.for]="control.key" class="input-label">Month</label>
         </div>
         <div class="day-container">
-          <select [ngClass]="{'ng-pristine': !dateStruct.day}" (change)="onSelectDay($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #daySelect>
+          <select [ngClass]="{'ng-pristine': !dateStruct.day}" (change)="handleOnSelectDay($event)" (focus)="handleOnFocusDatePicker()" (blur)="handleOnBlurDatePicker()" #daySelect>
             <option disabled value="">Day</option>
             <option *ngFor="let day of dateConfig.days" value="{{day.value}}">{{day.display}}</option>
           </select>
           <label [attr.for]="control.key" class="input-label">Day</label>
         </div>
         <div class="year-container">
-          <select [ngClass]="{'ng-pristine': !dateStruct.year}" (change)="onSelectYear($event.target.value)" (focus)="onFocusDatePicker()" (blur)="onBlurDatePicker()" #yearSelect>
+          <select [ngClass]="{'ng-pristine': !dateStruct.year}" (change)="handleOnSelectYear($event)" (focus)="handleOnFocusDatePicker()" (blur)="handleOnBlurDatePicker()" #yearSelect>
             <option disabled value="">Year</option>
             <option *ngFor="let year of dateConfig.years" value="{{year.value}}">{{year.display}}</option>
           </select>
